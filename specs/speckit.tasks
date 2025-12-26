@@ -1,0 +1,51 @@
+# Evolution of Todo - Phase 1 Tasks
+
+## Phase 1: Setup
+- [X] **T-001**: Create project directory structure with src/core and src/cli directories
+- [X] **T-002**: Set up pyproject.toml with Python 3.13 requirement and uv configuration
+- [X] **T-003**: Create __init__.py files in src/, src/core/, and src/cli/ directories
+
+## Phase 2: Foundational Components
+- [X] **T-004**: Set up `src/core/models.py` with `Task` dataclass
+- [X] **T-005**: Implement `src/core/manager.py` with TaskManager class and in-memory storage
+
+## Phase 3: Add Task Feature [US1]
+- [X] **T-006**: [US1] Implement `add_task` method in TaskManager with auto-increment ID and default status
+- [X] **T-007**: [US1] Implement CLI interface for adding tasks in `src/cli/interface.py`
+- [X] **T-008**: [US1] Test adding task functionality with title and description
+
+## Phase 4: View Tasks Feature [US2]
+- [X] **T-009**: [US2] Implement `get_tasks` method in TaskManager to return all tasks
+- [X] **T-010**: [US2] Implement CLI interface for viewing tasks with table-like display
+- [X] **T-011**: [US2] Test viewing tasks functionality
+
+## Phase 5: Update Task Feature [US3]
+- [X] **T-012**: [US3] Implement `update_task` method in TaskManager with validation
+- [X] **T-013**: [US3] Implement CLI interface for updating tasks with input validation
+- [X] **T-014**: [US3] Test updating task functionality
+
+## Phase 6: Delete Task Feature [US4]
+- [X] **T-015**: [US4] Implement `remove_task` method in TaskManager with validation
+- [X] **T-016**: [US4] Implement CLI interface for deleting tasks with input validation
+- [X] **T-017**: [US4] Test deleting task functionality
+
+## Phase 7: Mark Complete Feature [US5]
+- [X] **T-018**: [US5] Implement `complete_task` method in TaskManager with validation
+- [X] **T-019**: [US5] Implement CLI interface for marking tasks as complete
+- [X] **T-020**: [US5] Test marking task as complete functionality
+
+## Phase 8: CLI Interface and Menu
+- [X] **T-021**: Implement main menu loop in `src/cli/interface.py` with options 1-6
+- [X] **T-022**: Implement input validation and error handling for all menu options
+- [X] **T-023**: Ensure menu continues until user selects Exit option
+
+## Phase 9: Entry Point and Integration
+- [X] **T-024**: Implement `src/main.py` to wire components together
+- [X] **T-025**: Create TaskManager and CLIRunner instances in main.py
+- [X] **T-026**: Start the CLI interface from main function
+
+## Phase 10: Verification and Testing
+- [X] **T-027**: Verify application runs with `uv run src/main.py`
+- [X] **T-028**: Test complete user journey with all 6 menu options
+- [X] **T-029**: Ensure all acceptance criteria from specification are met
+- [ ] **T-FIX-001**: Fix TaskManager instantiation scope or display logic.

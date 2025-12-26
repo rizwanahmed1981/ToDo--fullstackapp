@@ -1,0 +1,14 @@
+[project]
+name = "evolution-of-todo"
+version = "0.1.0"
+description = "CLI-based Todo application with in-memory storage"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+evolution-of-todo = "src.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools"

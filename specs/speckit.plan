@@ -1,0 +1,90 @@
+# Evolution of Todo - Phase 1 Technical Plan
+
+## Technical Context
+
+**Feature**: CLI-based Todo application with in-memory storage
+**Phase**: Phase 1 (Python CLI)
+**Architecture**: Clean Architecture with separation of concerns
+**Technology Stack**: Python 3.13, uv package manager
+**Persistence**: In-memory only (List[Task])
+**Project Structure**: `src/core` for business logic, `src/cli` for user interface
+
+## Directory Structure
+
+```
+src/
+├── core/                 # Business logic (Platform Agnostic)
+│   ├── __init__.py
+│   ├── models.py         # Task dataclass definition
+│   └── manager.py        # TaskManager service class
+└── cli/                  # User interface (CLI specific)
+    ├── __init__.py
+    ├── interface.py      # CLIRunner class with menu loop
+    └── main.py           # Entry point to wire components together
+```
+
+## Component Design
+
+### Model: Task (src/core/models.py)
+- A dataclass representing a single task
+- Fields: `id: int`, `title: str`, `description: str`, `status: str` (Pending/Completed)
+- Auto-increment ID functionality
+- Default status 'Pending'
+
+### Service: TaskManager (src/core/manager.py)
+- Class to manage all task operations
+- Methods:
+  - `add_task(title: str, description: str) -> int`: Creates a new task with auto-incremented ID, returns the ID
+  - `remove_task(task_id: int) -> bool`: Removes a task by ID, returns success status
+  - `get_tasks() -> List[Task]`: Returns all tasks
+  - `update_task(task_id: int, title: Optional[str] = None, description: Optional[str] = None) -> bool`: Updates a task's title or description, returns success status
+  - `complete_task(task_id: int) -> bool`: Marks a task as completed, returns success status
+
+### Interface: CLIRunner (src/cli/interface.py)
+- Class to handle user interaction
+- Contains the `while True` loop for the main menu
+- Handles input parsing and validation
+- Displays formatted output (table-like display for tasks)
+- Manages user journey flow [1. Add, 2. List, 3. Update, 4. Delete, 5. Complete, 6. Exit]
+
+### Entry Point: main.py (src/main.py)
+- Instantiates and wires all components together
+- Creates TaskManager and CLIRunner instances
+- Starts the CLI interface
+
+## Data Flow
+
+The data flow follows the clean architecture pattern:
+
+1. **User Input**: CLIRunner receives user input from the CLI menu
+2. **Input Processing**: CLIRunner parses the input and validates it
+3. **Service Call**: CLIRunner calls appropriate methods on TaskManager
+4. **Business Logic**: TaskManager processes the request using internal state
+5. **Response**: TaskManager returns results to CLIRunner
+6. **Output Formatting**: CLIRunner formats the response for display
+7. **User Output**: CLIRunner displays the result to the user
+
+This flow ensures separation of concerns where:
+- The CLI layer handles user interaction and display formatting
+- The core layer handles business logic and data management
+- The data remains in memory within the TaskManager
+
+## Implementation Notes
+
+- All functions must have type hints as required by the constitution
+- All modules must have docstrings as required by the constitution
+- Use dataclasses for models as required by the constitution
+- In-memory storage only (no external dependencies)
+- Python 3.13 specific features can be utilized
+- Error handling must be explicit and informative
+
+## Architecture Compliance
+
+This design complies with all constitutional requirements:
+- ✅ In-Memory Only architecture (no database dependencies)
+- ✅ Clean Architecture (separation of concerns with src/core and src/cli)
+- ✅ Python 3.13 and uv constraints
+- ✅ CLI interface only (no GUI libraries)
+- ✅ Dataclasses for models
+- ✅ Type hints for all functions
+- ✅ Docstrings for all modules

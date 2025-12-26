@@ -1,0 +1,69 @@
+# Evolution of Todo - Phase 1 Specification
+
+## Overview
+This specification defines the "What" for Phase 1 of the Evolution of Todo Hackathon. The application is a CLI-based Todo app that serves as the foundation for a future Cloud-Native AI system.
+
+## Core Features
+
+### 1. Add Task
+- **Inputs**: Title, Description
+- **Logic**: Auto-increment ID, Default status 'Pending'
+- **Output**: Success message with ID
+- **Acceptance Criteria**:
+  - User can provide a title and description to create a new task
+  - System assigns an auto-incremented ID to the task
+  - Task status defaults to 'Pending'
+  - System displays a success message with the assigned ID
+
+### 2. View Tasks
+- **Logic**: List all tasks
+- **Format**: Table-like display (ID | Status | Title)
+- **Acceptance Criteria**:
+  - System displays all tasks in memory
+  - Output is formatted as a table with columns: ID, Status, Title
+  - If no tasks exist, display an appropriate message
+
+### 3. Update Task
+- **Input**: ID + (New Title OR New Description)
+- **Validation**: Error if ID not found
+- **Acceptance Criteria**:
+  - User can update either the title or description of an existing task
+  - System validates that the task ID exists
+  - If ID not found, display an error message
+  - System updates only the specified fields
+
+### 4. Delete Task
+- **Input**: ID
+- **Logic**: Remove from memory
+- **Acceptance Criteria**:
+  - User can specify a task ID to delete
+  - System removes the task from memory
+  - System confirms deletion or displays error if ID not found
+
+### 5. Mark Complete
+- **Input**: ID
+- **Logic**: Toggle status to 'Completed'
+- **Acceptance Criteria**:
+  - User can specify a task ID to mark as completed
+  - System updates the task status to 'Completed'
+  - System confirms the status change or displays error if ID not found
+
+## User Journey
+- The app must run in a `while True` loop showing a menu [1. Add, 2. List, 3. Update, 4. Delete, 5. Complete, 6. Exit] until the user selects Exit.
+- The menu should be clearly displayed with numbered options
+- After each operation, the menu should be shown again unless the user selects Exit
+- The application should handle invalid input gracefully
+
+## Non-Functional Requirements
+- Data is stored only in memory (volatile)
+- Application follows clean architecture principles
+- All functions have type hints
+- All modules have docstrings
+- Uses dataclasses for models
+
+## Constraints
+- Python 3.13 required
+- Package management via `uv`
+- CLI interface only
+- No external database dependencies
+- In-memory data storage only

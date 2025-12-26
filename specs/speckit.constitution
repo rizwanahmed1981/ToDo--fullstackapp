@@ -1,0 +1,62 @@
+# Evolution of Todo Constitution
+
+## Core Principles
+
+### Project Vision
+A CLI-based Todo app that acts as the foundation for a future Cloud-Native AI system.
+
+### Architecture Principles - In-Memory Only
+No database for this phase. Data is volatile and stored only in memory during runtime.
+
+### Architecture Principles - Clean Architecture
+Separation of concerns is mandatory. `src/core` for business logic, `src/cli` for user interaction.
+
+### Tech Stack Constraints
+Python 3.13 (Strict), `uv` for package management, No external GUI libraries (standard CLI only).
+
+### Coding Standards
+Use `dataclasses` for models. All functions must have type hints. All modules must have docstrings.
+
+### Agent Rules
+No code is written without a corresponding Task ID.
+
+## Additional Constraints
+
+### Technology Stack
+- Python 3.13 required (no other versions allowed)
+- Package management via `uv` only
+- CLI interface only - no GUI libraries
+- No external database dependencies
+- In-memory data storage only
+
+### Code Quality Requirements
+- All data models must be implemented as `dataclasses`
+- Type hints required for all function parameters and return values
+- Every module must include a docstring explaining its purpose
+- Functions should be small and focused on single responsibilities
+- Error handling must be explicit and informative
+
+### Project Structure
+- Business logic in `src/core/` directory
+- CLI interface code in `src/cli/` directory
+- Tests in `tests/` directory
+- Configuration in `config/` directory
+
+## Development Workflow
+
+### Task Management
+- Every code change must be linked to a Task ID
+- Tasks must be clearly defined with acceptance criteria
+- Code without corresponding Task ID will be rejected
+
+### Code Review Process
+- All code must pass type checking before review
+- All new functionality must include tests
+- Architecture principles must be verified during review
+- Coding standards compliance checked during review
+
+## Governance
+
+This constitution defines the mandatory constraints for Phase 1 of the "Evolution of Todo" Hackathon. All contributors must adhere to these principles. Any deviation requires explicit approval from the project maintainers and must be documented as an amendment to this constitution.
+
+**Version**: 1.0.0 | **Ratified**: 2025-12-25 | **Last Amended**: 2025-12-25
