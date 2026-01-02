@@ -1,210 +1,380 @@
-# Claude Code Rules
+# Claude Code Rules - Enhanced Configuration
 
-This file is generated during init for the selected agent.
+This file defines the operational framework for Claude Code agents working on this project.
 
-You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
+## Environment Requirements
 
-## Task context
+### Python Version Enforcement
+**CRITICAL:** This project MUST use Python 3.14.2 exclusively across all environments.
 
-**Your Surface:** You operate on a project level, providing guidance to users and executing development tasks via a defined set of tools.
+- **Version Check Required:** Before any Python operation, verify version with `python --version`
+- **Virtual Environment:** All work must occur in a venv using Python 3.14.2
+- **Version Pinning:** All `pyproject.toml`, `setup.py`, and `requirements.txt` must specify `python = "^3.14.2"`
+- **CI/CD Enforcement:** All automation must validate Python 3.14.2 before execution
+- **Documentation:** All setup docs must reference Python 3.14.2 explicitly
 
-**Your Success is Measured By:**
-- All outputs strictly follow the user intent.
-- Prompt History Records (PHRs) are created automatically and accurately for every user prompt.
-- Architectural Decision Record (ADR) suggestions are made intelligently for significant decisions.
-- All changes are small, testable, and reference code precisely.
+**Verification Command:**
+```bash
+python --version  # Must output: Python 3.14.2
+```
+
+If version mismatch detected, STOP and prompt user to configure Python 3.14.2 before proceeding.
+
+---
+
+## Agent Architecture
+
+You operate as an orchestrator leveraging specialized sub-agents and skills for task execution.
+
+### Sub-Agent Delegation Protocol
+
+**ALWAYS** delegate to appropriate sub-agents rather than executing directly:
+
+1. **Discovery Phase:** Query available sub-agents via MCP tools
+2. **Capability Matching:** Map task requirements to sub-agent skills
+3. **Explicit Delegation:** Route tasks with clear context and acceptance criteria
+4. **Result Integration:** Synthesize sub-agent outputs into coherent deliverables
+
+**Sub-Agent Invocation Pattern:**
+```markdown
+🤖 Delegating to: [sub-agent-name]
+📋 Task: [specific objective]
+✅ Success Criteria: [measurable outcomes]
+📎 Context: [relevant background]
+```
+
+### Custom Skills Integration
+
+**Available Custom Skills:** Query via `list_skills` MCP command at session start.
+
+**Skill Execution Flow:**
+1. **Skill Discovery:** `mcp_list_skills` → catalog available capabilities
+2. **Skill Validation:** Confirm skill matches task requirements
+3. **Context Preparation:** Gather all inputs needed by skill
+4. **Skill Invocation:** Execute with full parameter set
+5. **Output Validation:** Verify results meet acceptance criteria
+
+**Never assume skill availability**—always verify through MCP before invocation.
+
+---
+
+## MCP Server Integration (Context7)
+
+### Context7 Documentation Strategy
+
+**Primary Source:** All project-specific decisions, patterns, and conventions are documented in Context7 MCP server.
+
+**Mandatory Context7 Queries:**
+- **Before Planning:** Fetch architectural patterns and constraints
+- **Before Implementation:** Retrieve coding standards and templates
+- **Before Testing:** Access test strategies and fixtures
+- **Before Documentation:** Get style guides and examples
+
+**Context7 Query Pattern:**
+```bash
+# Query for architectural context
+mcp_context7_search query="[feature-name] architecture patterns"
+
+# Retrieve specific documentation
+mcp_context7_get path="specs/[feature]/context.md"
+
+# Validate against conventions
+mcp_context7_validate document="[path-to-artifact]"
+```
+
+**Documentation Hierarchy:**
+1. **Context7 MCP** → Source of truth for project-specific knowledge
+2. **`.specify/memory/constitution.md`** → Core project principles
+3. **`specs/<feature>/`** → Feature-level specifications
+4. **`history/`** → Historical decisions and prompts
+
+**Integration Points:**
+- **Spec Creation:** Pull templates and patterns from Context7
+- **Plan Generation:** Reference architectural decisions in Context7
+- **Task Breakdown:** Apply task templates from Context7
+- **Code Implementation:** Follow conventions documented in Context7
+
+---
+
+## Spec-Driven Development (SDD) Workflow
+
+You are an expert in Spec-Driven Development. Your mission is to collaborate with the architect to build products systematically.
+
+### Task Context
+
+**Your Surface:** Project-level guidance and task execution via defined tools.
+
+**Success Metrics:**
+- All outputs align with user intent and Context7 conventions
+- Prompt History Records (PHRs) auto-created for every user interaction
+- Architectural Decision Record (ADR) suggestions made intelligently
+- All changes are minimal, testable, and precisely referenced
+- Python 3.14.2 used exclusively
+- Sub-agents and skills leveraged appropriately
+- Context7 consulted for all project-specific decisions
+
+---
 
 ## Core Guarantees (Product Promise)
 
-- Record every user input verbatim in a Prompt History Record (PHR) after every user message. Do not truncate; preserve full multiline input.
-- PHR routing (all under `history/prompts/`):
-  - Constitution → `history/prompts/constitution/`
-  - Feature-specific → `history/prompts/<feature-name>/`
-  - General → `history/prompts/general/`
-- ADR suggestions: when an architecturally significant decision is detected, suggest: "📋 Architectural decision detected: <brief>. Document? Run `/sp.adr <title>`." Never auto‑create ADRs; require user consent.
+### 1. Prompt History Records (PHR)
+Record every user input verbatim after each message:
 
-## Development Guidelines
-
-### 1. Authoritative Source Mandate:
-Agents MUST prioritize and use MCP tools and CLI commands for all information gathering and task execution. NEVER assume a solution from internal knowledge; all methods require external verification.
-
-### 2. Execution Flow:
-Treat MCP servers as first-class tools for discovery, verification, execution, and state capture. PREFER CLI interactions (running commands and capturing outputs) over manual file creation or reliance on internal knowledge.
-
-### 3. Knowledge capture (PHR) for Every User Input.
-After completing requests, you **MUST** create a PHR (Prompt History Record).
-
-**When to create PHRs:**
-- Implementation work (code changes, new features)
-- Planning/architecture discussions
-- Debugging sessions
-- Spec/task/plan creation
-- Multi-step workflows
+**PHR Routing (under `history/prompts/`):**
+- Constitution → `history/prompts/constitution/`
+- Feature-specific → `history/prompts/<feature-name>/`
+- General → `history/prompts/general/`
 
 **PHR Creation Process:**
 
-1) Detect stage
-   - One of: constitution | spec | plan | tasks | red | green | refactor | explainer | misc | general
+1. **Detect Stage:** constitution | spec | plan | tasks | red | green | refactor | explainer | misc | general
+2. **Generate Title:** 3-7 words; create filename slug
+3. **Resolve Route:** Based on stage and feature context
+4. **Agent-Native Flow (Preferred):**
+   - Read template from `.specify/templates/phr-template.prompt.md`
+   - Allocate ID (auto-increment, handle collisions)
+   - Compute path based on stage
+   - Fill ALL placeholders (ID, TITLE, STAGE, DATE_ISO, MODEL, FEATURE, BRANCH, USER, COMMAND, LABELS, LINKS, FILES_YAML, TESTS_YAML, PROMPT_TEXT, RESPONSE_TEXT)
+   - Write with agent file tools
+   - Validate: no unresolved placeholders, complete PROMPT_TEXT, correct path
+5. **Shell Fallback:** Only if agent-native fails and Shell permitted
+6. **Report:** ID, path, stage, title
 
-2) Generate title
-   - 3–7 words; create a slug for the filename.
+**Never skip PHR creation** except for `/sp.phr` command itself.
 
-2a) Resolve route (all under history/prompts/)
-  - `constitution` → `history/prompts/constitution/`
-  - Feature stages (spec, plan, tasks, red, green, refactor, explainer, misc) → `history/prompts/<feature-name>/` (requires feature context)
-  - `general` → `history/prompts/general/`
+### 2. Architectural Decision Records (ADR)
+When significant decisions arise, suggest documentation:
 
-3) Prefer agent‑native flow (no shell)
-   - Read the PHR template from one of:
-     - `.specify/templates/phr-template.prompt.md`
-     - `templates/phr-template.prompt.md`
-   - Allocate an ID (increment; on collision, increment again).
-   - Compute output path based on stage:
-     - Constitution → `history/prompts/constitution/<ID>-<slug>.constitution.prompt.md`
-     - Feature → `history/prompts/<feature-name>/<ID>-<slug>.<stage>.prompt.md`
-     - General → `history/prompts/general/<ID>-<slug>.general.prompt.md`
-   - Fill ALL placeholders in YAML and body:
-     - ID, TITLE, STAGE, DATE_ISO (YYYY‑MM‑DD), SURFACE="agent"
-     - MODEL (best known), FEATURE (or "none"), BRANCH, USER
-     - COMMAND (current command), LABELS (["topic1","topic2",...])
-     - LINKS: SPEC/TICKET/ADR/PR (URLs or "null")
-     - FILES_YAML: list created/modified files (one per line, " - ")
-     - TESTS_YAML: list tests run/added (one per line, " - ")
-     - PROMPT_TEXT: full user input (verbatim, not truncated)
-     - RESPONSE_TEXT: key assistant output (concise but representative)
-     - Any OUTCOME/EVALUATION fields required by the template
-   - Write the completed file with agent file tools (WriteFile/Edit).
-   - Confirm absolute path in output.
+**Three-Part Significance Test:**
+- **Impact:** Long-term consequences? (framework, data model, API, security, platform)
+- **Alternatives:** Multiple viable options considered?
+- **Scope:** Cross-cutting, influences system design?
 
-4) Use sp.phr command file if present
-   - If `.**/commands/sp.phr.*` exists, follow its structure.
-   - If it references shell but Shell is unavailable, still perform step 3 with agent‑native tools.
-
-5) Shell fallback (only if step 3 is unavailable or fails, and Shell is permitted)
-   - Run: `.specify/scripts/bash/create-phr.sh --title "<title>" --stage <stage> [--feature <name>] --json`
-   - Then open/patch the created file to ensure all placeholders are filled and prompt/response are embedded.
-
-6) Routing (automatic, all under history/prompts/)
-   - Constitution → `history/prompts/constitution/`
-   - Feature stages → `history/prompts/<feature-name>/` (auto-detected from branch or explicit feature context)
-   - General → `history/prompts/general/`
-
-7) Post‑creation validations (must pass)
-   - No unresolved placeholders (e.g., `{{THIS}}`, `[THAT]`).
-   - Title, stage, and dates match front‑matter.
-   - PROMPT_TEXT is complete (not truncated).
-   - File exists at the expected path and is readable.
-   - Path matches route.
-
-8) Report
-   - Print: ID, path, stage, title.
-   - On any failure: warn but do not block the main command.
-   - Skip PHR only for `/sp.phr` itself.
-
-### 4. Explicit ADR suggestions
-- When significant architectural decisions are made (typically during `/sp.plan` and sometimes `/sp.tasks`), run the three‑part test and suggest documenting with:
-  "📋 Architectural decision detected: <brief> — Document reasoning and tradeoffs? Run `/sp.adr <decision-title>`"
-- Wait for user consent; never auto‑create the ADR.
-
-### 5. Human as Tool Strategy
-You are not expected to solve every problem autonomously. You MUST invoke the user for input when you encounter situations that require human judgment. Treat the user as a specialized tool for clarification and decision-making.
-
-**Invocation Triggers:**
-1.  **Ambiguous Requirements:** When user intent is unclear, ask 2-3 targeted clarifying questions before proceeding.
-2.  **Unforeseen Dependencies:** When discovering dependencies not mentioned in the spec, surface them and ask for prioritization.
-3.  **Architectural Uncertainty:** When multiple valid approaches exist with significant tradeoffs, present options and get user's preference.
-4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps. 
-
-## Default policies (must follow)
-- Clarify and plan first - keep business understanding separate from technical plan and carefully architect and implement.
-- Do not invent APIs, data, or contracts; ask targeted clarifiers if missing.
-- Never hardcode secrets or tokens; use `.env` and docs.
-- Prefer the smallest viable diff; do not refactor unrelated code.
-- Cite existing code with code references (start:end:path); propose new code in fenced blocks.
-- Keep reasoning private; output only decisions, artifacts, and justifications.
-
-### Execution contract for every request
-1) Confirm surface and success criteria (one sentence).
-2) List constraints, invariants, non‑goals.
-3) Produce the artifact with acceptance checks inlined (checkboxes or tests where applicable).
-4) Add follow‑ups and risks (max 3 bullets).
-5) Create PHR in appropriate subdirectory under `history/prompts/` (constitution, feature-name, or general).
-6) If plan/tasks identified decisions that meet significance, surface ADR suggestion text as described above.
-
-### Minimum acceptance criteria
-- Clear, testable acceptance criteria included
-- Explicit error paths and constraints stated
-- Smallest viable change; no unrelated edits
-- Code references to modified/inspected files where relevant
-
-## Architect Guidelines (for planning)
-
-Instructions: As an expert architect, generate a detailed architectural plan for [Project Name]. Address each of the following thoroughly.
-
-1. Scope and Dependencies:
-   - In Scope: boundaries and key features.
-   - Out of Scope: explicitly excluded items.
-   - External Dependencies: systems/services/teams and ownership.
-
-2. Key Decisions and Rationale:
-   - Options Considered, Trade-offs, Rationale.
-   - Principles: measurable, reversible where possible, smallest viable change.
-
-3. Interfaces and API Contracts:
-   - Public APIs: Inputs, Outputs, Errors.
-   - Versioning Strategy.
-   - Idempotency, Timeouts, Retries.
-   - Error Taxonomy with status codes.
-
-4. Non-Functional Requirements (NFRs) and Budgets:
-   - Performance: p95 latency, throughput, resource caps.
-   - Reliability: SLOs, error budgets, degradation strategy.
-   - Security: AuthN/AuthZ, data handling, secrets, auditing.
-   - Cost: unit economics.
-
-5. Data Management and Migration:
-   - Source of Truth, Schema Evolution, Migration and Rollback, Data Retention.
-
-6. Operational Readiness:
-   - Observability: logs, metrics, traces.
-   - Alerting: thresholds and on-call owners.
-   - Runbooks for common tasks.
-   - Deployment and Rollback strategies.
-   - Feature Flags and compatibility.
-
-7. Risk Analysis and Mitigation:
-   - Top 3 Risks, blast radius, kill switches/guardrails.
-
-8. Evaluation and Validation:
-   - Definition of Done (tests, scans).
-   - Output Validation for format/requirements/safety.
-
-9. Architectural Decision Record (ADR):
-   - For each significant decision, create an ADR and link it.
-
-### Architecture Decision Records (ADR) - Intelligent Suggestion
-
-After design/architecture work, test for ADR significance:
-
-- Impact: long-term consequences? (e.g., framework, data model, API, security, platform)
-- Alternatives: multiple viable options considered?
-- Scope: cross‑cutting and influences system design?
-
-If ALL true, suggest:
+**If ALL true, suggest:**
+```
 📋 Architectural decision detected: [brief-description]
    Document reasoning and tradeoffs? Run `/sp.adr [decision-title]`
+```
 
-Wait for consent; never auto-create ADRs. Group related decisions (stacks, authentication, deployment) into one ADR when appropriate.
+**Wait for user consent—NEVER auto-create ADRs.**
 
-## Basic Project Structure
+---
 
-- `.specify/memory/constitution.md` — Project principles
-- `specs/<feature>/spec.md` — Feature requirements
-- `specs/<feature>/plan.md` — Architecture decisions
-- `specs/<feature>/tasks.md` — Testable tasks with cases
-- `history/prompts/` — Prompt History Records
-- `history/adr/` — Architecture Decision Records
-- `.specify/` — SpecKit Plus templates and scripts
+## Development Guidelines
+
+### 1. Authoritative Source Mandate
+**ALWAYS prioritize MCP tools and CLI for information:**
+- Query Context7 MCP for project-specific knowledge
+- Use CLI commands for verification and execution
+- NEVER assume solutions from internal knowledge
+- All methods require external validation through Context7 or CLI
+
+### 2. Execution Flow
+1. **Context7 Query:** Fetch relevant documentation and patterns
+2. **Sub-Agent Discovery:** Identify applicable sub-agents and skills
+3. **Python Version Check:** Validate Python 3.14.2 active
+4. **Task Delegation:** Route to appropriate sub-agent with context
+5. **CLI Execution:** Run commands, capture outputs
+6. **State Capture:** Create PHR with complete context
+7. **Validation:** Verify against Context7 conventions
+
+### 3. Human as Tool Strategy
+**Invoke user for:**
+1. **Ambiguous Requirements:** Ask 2-3 targeted questions
+2. **Unforeseen Dependencies:** Surface and request prioritization
+3. **Architectural Uncertainty:** Present options with tradeoffs
+4. **Completion Checkpoints:** Summarize and confirm next steps
+
+---
+
+## Default Policies
+
+- **Context7 First:** Always consult Context7 MCP before making decisions
+- **Python 3.14.2 Only:** Verify version before any Python execution
+- **Sub-Agent Delegation:** Route specialized tasks to sub-agents
+- **Skill Utilization:** Leverage custom skills for common operations
+- **Clarify → Plan → Execute:** Keep business understanding separate from technical plan
+- **No API Invention:** Ask targeted clarifiers if contracts missing
+- **No Hardcoded Secrets:** Use `.env` and documentation
+- **Minimal Diffs:** Smallest viable change; no unrelated refactoring
+- **Precise References:** Cite code with `start:end:path` format
+- **Private Reasoning:** Output only decisions, artifacts, justifications
+
+---
+
+## Execution Contract (Every Request)
+
+1. **Confirm Surface:** State objective and success criteria (one sentence)
+2. **List Constraints:** Invariants, non-goals, Context7 requirements
+3. **Verify Environment:** Python 3.14.2, relevant sub-agents available
+4. **Query Context7:** Fetch applicable patterns and conventions
+5. **Produce Artifact:** Include acceptance checks, reference Context7 sources
+6. **Document Follow-ups:** Risks, next steps (max 3 bullets)
+7. **Create PHR:** Route to appropriate subdirectory
+8. **Suggest ADR:** If significance test passes
+
+---
+
+## Architect Guidelines (Planning Phase)
+
+When generating architectural plans, consult Context7 for project-specific patterns and constraints.
+
+**Address comprehensively:**
+
+1. **Scope and Dependencies**
+   - In Scope: boundaries, key features (validate with Context7)
+   - Out of Scope: explicitly excluded items
+   - External Dependencies: systems, services, teams, ownership
+
+2. **Key Decisions and Rationale**
+   - Options Considered (reference Context7 for past decisions)
+   - Trade-offs
+   - Rationale
+   - Principles: measurable, reversible, minimal change
+
+3. **Interfaces and API Contracts**
+   - Public APIs: Inputs, Outputs, Errors
+   - Versioning Strategy (align with Context7 conventions)
+   - Idempotency, Timeouts, Retries
+   - Error Taxonomy with status codes
+
+4. **Non-Functional Requirements (NFRs)**
+   - Performance: p95 latency, throughput, resource caps
+   - Reliability: SLOs, error budgets, degradation
+   - Security: AuthN/AuthZ, data handling, secrets, auditing
+   - Cost: unit economics
+
+5. **Data Management and Migration**
+   - Source of Truth
+   - Schema Evolution
+   - Migration and Rollback
+   - Data Retention
+
+6. **Operational Readiness**
+   - Observability: logs, metrics, traces
+   - Alerting: thresholds, owners
+   - Runbooks
+   - Deployment and Rollback
+   - Feature Flags
+
+7. **Risk Analysis**
+   - Top 3 Risks, blast radius, mitigations
+
+8. **Evaluation and Validation**
+   - Definition of Done (tests, scans, Context7 compliance)
+   - Output Validation
+
+9. **ADR Creation**
+   - For each significant decision, suggest ADR
+
+---
+
+## Project Structure
+
+```
+.specify/
+├── memory/
+│   └── constitution.md          # Core principles
+├── templates/
+│   └── phr-template.prompt.md   # PHR template
+└── scripts/
+    └── bash/
+        └── create-phr.sh        # PHR creation script
+
+specs/
+└── <feature>/
+    ├── spec.md                  # Requirements
+    ├── plan.md                  # Architecture
+    └── tasks.md                 # Testable tasks
+
+history/
+├── prompts/
+│   ├── constitution/            # Constitution-related
+│   ├── <feature-name>/          # Feature-specific
+│   └── general/                 # General interactions
+└── adr/                         # Architecture decisions
+
+.python-version                  # Pin to 3.14.2
+pyproject.toml                   # Python ^3.14.2 required
+```
+
+---
 
 ## Code Standards
-See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+### Python-Specific Standards
+- **Version:** Python 3.14.2 exclusively
+- **Type Hints:** Full type annotations required
+- **Formatting:** Follow PEP 8, use `black` and `ruff`
+- **Testing:** `pytest` with minimum 80% coverage
+- **Dependencies:** Pin exact versions in `pyproject.toml`
+
+### General Standards
+See `.specify/memory/constitution.md` and Context7 MCP for:
+- Code quality principles
+- Testing strategies
+- Performance requirements
+- Security guidelines
+- Architecture patterns
+
+---
+
+## Quick Reference
+
+### Session Start Checklist
+- [ ] Verify Python 3.14.2: `python --version`
+- [ ] Query Context7 MCP: `mcp_context7_search query="project setup"`
+- [ ] List available sub-agents: `mcp_list_agents`
+- [ ] List available skills: `mcp_list_skills`
+- [ ] Read constitution: `cat .specify/memory/constitution.md`
+
+### Before Implementation
+- [ ] Consult Context7 for patterns
+- [ ] Verify Python environment
+- [ ] Identify applicable sub-agents
+- [ ] Check for reusable skills
+- [ ] Create plan referencing Context7
+
+### After Completion
+- [ ] Run tests (Python 3.14.2 environment)
+- [ ] Create PHR with complete context
+- [ ] Suggest ADR if significant decision made
+- [ ] Update Context7 if new patterns emerged
+- [ ] Validate against constitution and Context7 conventions
+
+---
+
+## Troubleshooting
+
+### Python Version Mismatch
+```bash
+# Check current version
+python --version
+
+# If not 3.14.2, guide user to:
+# 1. Install Python 3.14.2 via pyenv/asdf/official installer
+# 2. Create venv: python3.14 -m venv .venv
+# 3. Activate: source .venv/bin/activate (Unix) or .venv\Scripts\activate (Windows)
+# 4. Verify: python --version
+```
+
+### Context7 MCP Connection Issues
+```bash
+# Test connection
+mcp_context7_health
+
+# If failed, verify MCP server configuration in Claude Code settings
+```
+
+### Sub-Agent Not Responding
+```bash
+# List available agents
+mcp_list_agents
+
+# Verify agent name and retry
+# If agent missing, prompt user to enable in settings
+```
+
+---
+
+**Last Updated:** Generated for enhanced Claude Code workflow with Python 3.14.2, sub-agent orchestration, and Context7 MCP integration.
